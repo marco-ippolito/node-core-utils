@@ -1,7 +1,8 @@
 import CLI from '../../lib/cli.js';
 import SecurityReleaseSteward from '../../lib/prepare_security.js';
+import SecurityReleaseRequestCVEs from '../../lib/request-cve.js';
 
-export const command = 'security [issue] [options]';
+export const command = 'security [issueNumber] [options]';
 export const describe = 'Manage an in-progress security release or start a new one.';
 
 const securityOptions = {
@@ -10,7 +11,7 @@ const securityOptions = {
     type: 'boolean'
   },
   requestCVEs: {
-    describe: 'Request CVEs from hackerone',
+    describe: 'Request CVEs creation',
     type: 'boolean'
   }
 };
@@ -20,12 +21,12 @@ let yargsInstance;
 export function builder(yargs) {
   yargsInstance = yargs;
   return yargs.options(securityOptions)
-    .positional('issue', {
-      type: 'string',
-      describe: 'ID or URL of the security release issue'
+    .positional('issueNumber', {
+      type: 'number',
+      describe: 'Number security release issue'
     })
     .check(argv => {
-      if (argv.requestCVEs && !argv.issue) {
+      if (argv.requestCVEs && !argv.issueNumber) {
         throw new Error('The --requestCVEs flag requires an issue');
       }
       return true;
@@ -43,7 +44,7 @@ export function handler(argv) {
     return startSecurityRelease(argv);
   }
   if (argv.requestCVEs) {
-    return requestCVEs(argv);
+    return requestCVEs(argv.issueNumber);
   }
   yargsInstance.showHelp();
 }
@@ -55,6 +56,9 @@ async function startSecurityRelease(argv) {
   return release.start();
 }
 
-async function requestCVEs(argv) {
-  return 'TODO: request CVEs';
+async function requestCVEs(issueNumber) {
+  const logStream = process.stdout.isTTY ? process.stdout : process.stderr;
+  const cli = new CLI(logStream);
+  const request = new SecurityReleaseRequestCVEs(cli, issueNumber);
+  return request.start();
 }

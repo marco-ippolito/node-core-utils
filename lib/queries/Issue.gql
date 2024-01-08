@@ -1,0 +1,26 @@
+query Issue($id: Int!, $owner: String!, $repo: String!) {
+  repository(owner: $owner, name: $repo) {
+    issue(number: $id) {
+      createdAt,
+      authorAssociation,
+      author {
+        ... on User {
+          login,
+          email,
+          name
+        }
+      },
+      url,
+      bodyHTML,
+      bodyText,
+      labels(first: 100) {
+        nodes {
+          name
+        }
+      },
+      title,
+      closed,
+      closedAt,
+    }
+  }
+}
