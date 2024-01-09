@@ -451,12 +451,30 @@ $ ncu-config --global set h1_username $H1_TOKEN
   access.
 - `h1_username`: HackerOne API Token username.
 
+The setup MITRE CVE API credentials:
+
+```console
+$ ncu-config --global set mitre_org ORG
+$ ncu-config --global set mitre_key KEY
+$ ncu-config --global set mitre_user USERNAME
+```
+
+- `mitre_org`: Mitre Organization ID.
+- `mitre_user`: Mitre API Token username.
+- `mitre_key`: Mitre API Token.
+
 ### `git node security --start`
 
 This command creates the Next Security Issue in Node.js private repository
 following the [Security Release Process][] document.
 It will retrieve all the triaged HackerOne reports and add them to the list
 with the affected release line.
+
+### `git node security <issue-number> --reserveCVEIds`
+
+This command fetches the issue from Github for the security release process,
+created with `git node security --start`, and requests CVE IDs for the
+triaged HackerOne reports.
 
 ## `git node status`
 

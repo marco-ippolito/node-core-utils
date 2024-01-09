@@ -1,6 +1,6 @@
 import CLI from '../../lib/cli.js';
 import SecurityReleaseSteward from '../../lib/prepare_security.js';
-import SecurityReleaseRequestCVEs from '../../lib/request-cve.js';
+import SecurityReleasereserveCVEIds from '../../lib/request-cve.js';
 
 export const command = 'security [issueNumber] [options]';
 export const describe = 'Manage an in-progress security release or start a new one.';
@@ -10,8 +10,8 @@ const securityOptions = {
     describe: 'Start security release process',
     type: 'boolean'
   },
-  requestCVEs: {
-    describe: 'Request CVEs creation',
+  reserveCVEIds: {
+    describe: 'Reserve CVEs ids for the security release',
     type: 'boolean'
   }
 };
@@ -23,11 +23,11 @@ export function builder(yargs) {
   return yargs.options(securityOptions)
     .positional('issueNumber', {
       type: 'number',
-      describe: 'Number security release issue'
+      describe: 'Number of the security release issue'
     })
     .check(argv => {
-      if (argv.requestCVEs && !argv.issueNumber) {
-        throw new Error('The --requestCVEs flag requires an issue');
+      if (argv.reserveCVEIds && !argv.issueNumber) {
+        throw new Error('The --reserveCVEIds flag requires an issue');
       }
       return true;
     })
@@ -35,16 +35,16 @@ export function builder(yargs) {
       'git node security --start',
       'Prepare a security release of Node.js')
     .example(
-      'git node security 514 --requestCVEs',
-      'Request CVEs for the security release issue');
+      'git node security 514 --reserveCVEIds',
+      'Reserve CVE ids for the security release');
 }
 
 export function handler(argv) {
   if (argv.start) {
     return startSecurityRelease(argv);
   }
-  if (argv.requestCVEs) {
-    return requestCVEs(argv.issueNumber);
+  if (argv.reserveCVEIds) {
+    return reserveCVEIds(argv.issueNumber);
   }
   yargsInstance.showHelp();
 }
@@ -56,9 +56,10 @@ async function startSecurityRelease(argv) {
   return release.start();
 }
 
-async function requestCVEs(issueNumber) {
+async function reserveCVEIds(issueNumber) {
   const logStream = process.stdout.isTTY ? process.stdout : process.stderr;
   const cli = new CLI(logStream);
-  const request = new SecurityReleaseRequestCVEs(cli, issueNumber);
+  cli.setFigureIndent(0);
+  const request = new SecurityReleasereserveCVEIds(cli, issueNumber);
   return request.start();
 }
